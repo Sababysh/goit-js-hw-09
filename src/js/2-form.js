@@ -1,58 +1,41 @@
-const refs = {
-  formEl: document.querySelector('.feedback-form'),
-};
+const formData = { email: "", message: "" };
+const form = document.querySelector('.feedback-form');
 
-const LOCAL_KEY = 'feedback-form-state';
-const formData = JSON.parse(localStorage.getItem(LOCAL_KEY)) || {
-  email: '',
-  message: '',
-};
 
-refs.formEl.addEventListener('input', e => {
-  formData[e.target.name] = e.target.value.trim();
-  saveToLocalStorage(LOCAL_KEY, formData);
-});
-
-refs.formEl.addEventListener('submit', e => {
-  e.preventDefault();
-
-  const { email, message } = formData;
-  if (!email || !message) {
-    alert('Please fill out all fields');
-    return;
-  }
-
-  console.log('Form Submitted:', formData);
-
-  localStorage.removeItem(LOCAL_KEY);
-  refs.formEl.reset();
-
-  formData.email = '';
-  formData.message = '';
-});
-
-function saveToLocalStorage(key, value) {
-  const json = JSON.stringify(value);
-  localStorage.setItem(key, json);
-}
-
-function loadFromLocalStorage(key) {
-  const json = localStorage.getItem(key);
-  try {
-    return JSON.parse(json);
-  } catch {
-    return null;
-  }
-}
-
-function setDataToForm() {
-  const storedData = loadFromLocalStorage(LOCAL_KEY);
-  if (storedData) {
-    Object.keys(storedData).forEach(key => {
-      refs.formEl.elements[key].value = storedData[key];
-      formData[key] = storedData[key];
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedData = localStorage.getItem('feedback-form-state');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        formData.email = parsedData.email || "";
+        formData.message = parsedData.message || "";
+        form.elements.email.value = formData.email;
+        form.elements.message.value = formData.message;
+      }
     });
-  }
-}
 
-setDataToForm();
+
+    form.addEventListener('input', event => {
+      if (event.target.name === 'email' || event.target.name === 'message') {
+        formData[event.target.name] = event.target.value;
+        localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+      }
+    });
+
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+
+
+      if (formData.email.trim() === "" || formData.message.trim() === "") {
+        alert('Fill please all fields');
+      } else {
+
+        console.log(formData);
+
+
+        localStorage.removeItem('feedback-form-state');
+        formData.email = "";
+        formData.message = "";
+        form.reset();
+      }
+    });
